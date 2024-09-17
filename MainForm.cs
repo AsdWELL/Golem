@@ -34,22 +34,22 @@ namespace Golem
             switch (e.KeyCode)
             {
                 case Keys.Up:
-                    _figure.Move(0, 0.1F);
+                    _figure.Move(0, -10);
                     break;
                 case Keys.Down:
-                    _figure.Move(0, -0.1F);
+                    _figure.Move(0, 10);
                     break;
                 case Keys.Left:
-                    _figure.Move(-0.1F, 0);
+                    _figure.Move(-10, 0);
                     break;
                 case Keys.Right:
-                    _figure.Move(0.1F, 0);
+                    _figure.Move(10, 0);
                     break;
                 case Keys.Q:
-                    _figure.Rotate(-0.1F);
+                    _figure.Rotate(0.1F);
                     break;
                 case Keys.E:
-                    _figure.Rotate(0.1F);
+                    _figure.Rotate(-0.1F);
                     break;
             }
         }
