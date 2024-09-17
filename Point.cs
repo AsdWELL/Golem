@@ -1,11 +1,11 @@
 ﻿namespace Golem
 {
-    public class Point(double x, double y, float z)
+    public class Point(float x, float y, float z)
     {
-        public double X { get; set; } = x;
+        public float X { get; set; } = x;
 
-        public double Y { get; set; } = y;
+        public float Y { get; set; } = y;
 
-        public double Z { get; set; } = z;
+        public float Z { get; set; } = z;
     }
 }

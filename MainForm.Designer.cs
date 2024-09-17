@@ -34,9 +34,10 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(782, 553);
             Name = "MainForm";
             Text = "Голем";
+            Paint += MainForm_Paint;
             ResumeLayout(false);
         }
 
