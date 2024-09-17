@@ -37,7 +37,9 @@
             ClientSize = new Size(782, 553);
             Name = "MainForm";
             Text = "Голем";
+            Load += MainForm_Load;
             Paint += MainForm_Paint;
+            KeyDown += MainForm_KeyDown;
             ResumeLayout(false);
         }
 

@@ -32,6 +32,8 @@
         /// </summary>
         private float _offsetY;
 
+        public event Action FigureChanged;
+
         public Figure(float scaleX, float scaleY, float offsetX, float offsetY)
         {
             _scaleX = scaleX;
@@ -106,6 +108,33 @@
                 for (int j = 0; j < _transitions[i].Length; j++)
                     if (_transitions[i][j] == 1)
                         g.DrawLine(Pens.Black, screenPoints[i], screenPoints[j]);
+        }
+
+        public void Move(float offsetX, float offsetY)
+        {
+            _offsetX += offsetX;
+            _offsetY += offsetY;
+
+            FigureChanged.Invoke();
+        }
+
+        public void Scale(float scale)
+        {
+            _scaleX *= scale;
+            _scaleY *= scale;
+
+            FigureChanged.Invoke();
+        }
+
+        public void Rotate(float angle)
+        {
+            _points.ForEach(point =>
+            {
+                point.X = point.X * MathF.Cos(angle) - point.Y * MathF.Sin(angle);
+                point.Y = point.Y * MathF.Sin(angle) + point.Y * MathF.Cos(angle);
+            });
+            
+            FigureChanged.Invoke();
         }
     }
 }
