@@ -7,5 +7,12 @@
         public float Y { get; set; } = y;
 
         public float Z { get; set; } = z;
+
+        public void Deconstruct(out float x, out float y, out float z)
+        {
+            x = X;
+            y = Y;
+            z = Z;
+        }
     }
 }

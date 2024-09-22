@@ -39,7 +39,7 @@
             MaximizeBox = false;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Голем";
+            Text = "Голем 3D";
             Load += MainForm_Load;
             Paint += MainForm_Paint;
             KeyDown += MainForm_KeyDown;

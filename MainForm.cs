@@ -8,8 +8,7 @@ namespace Golem
         {
             InitializeComponent();
 
-            _figure = new Figure(10, 10, Width / 2, Height / 2);
-
+            _figure = new Figure(10, Width / 2, Height / 2);
             _figure.FigureChanged += Refresh;
 
             MouseWheel += MainForm_MouseWheel;
@@ -17,10 +16,12 @@ namespace Golem
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            MessageBox.Show($"Лабораторная работа №1{Environment.NewLine}" +
+            MessageBox.Show($"Лабораторная работа №2{Environment.NewLine}" +
                 $"Годов, Поршнев, Тында{Environment.NewLine}" +
-                $"Перемещение - стрелочки{Environment.NewLine}" +
-                $"Поворот - Q, E{Environment.NewLine}" +
+                $"Перемещение - WASD{Environment.NewLine}" +
+                $"Поворот по X - стрелочки вверх, вниз{Environment.NewLine}" +
+                $"Поворот по Y - стрелочки влево, вправо, {Environment.NewLine}" +
+                $"Поворот по Z - Q, E{Environment.NewLine}" +
                 $"Масштаб - колёсико мыши", "Приветствие");
         }
 
@@ -33,23 +34,35 @@ namespace Golem
         {
             switch (e.KeyCode)
             {
-                case Keys.Up:
-                    _figure.Move(0, -10);
+                case Keys.W:
+                    _figure.MoveUp(1);
                     break;
-                case Keys.Down:
-                    _figure.Move(0, 10);
+                case Keys.S:
+                    _figure.MoveDown(1);
                     break;
-                case Keys.Left:
-                    _figure.Move(-10, 0);
+                case Keys.A:
+                    _figure.MoveLeft(1);
                     break;
-                case Keys.Right:
-                    _figure.Move(10, 0);
+                case Keys.D:
+                    _figure.MoveRight(1);
                     break;
                 case Keys.Q:
-                    _figure.Rotate(0.1F);
+                    _figure.RotateZ(0.1f);
                     break;
                 case Keys.E:
-                    _figure.Rotate(-0.1F);
+                    _figure.RotateZ(-0.1f);
+                    break;
+                case Keys.Up:
+                    _figure.RotateX(-0.1f);
+                    break;
+                case Keys.Down:
+                    _figure.RotateX(0.1f);
+                    break;
+                case Keys.Left:
+                    _figure.RotateY(-0.1f);
+                    break;
+                case Keys.Right:
+                    _figure.RotateY(0.1f);
                     break;
             }
         }
