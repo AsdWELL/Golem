@@ -1,15 +1,15 @@
-namespace Golem
+namespace GolemApp
 {
     public partial class MainForm : Form
     {
-        private static Figure _figure;
+        private static Golem _golem;
 
         public MainForm()
         {
             InitializeComponent();
 
-            _figure = new Figure(10, Width / 2, Height / 2);
-            _figure.FigureChanged += Refresh;
+            _golem = new Golem(10, Width / 2, Height / 2);
+            _golem.FigureChanged += Refresh;
 
             MouseWheel += MainForm_MouseWheel;
         }
@@ -22,12 +22,13 @@ namespace Golem
                 $"Поворот по X - стрелочки вверх, вниз{Environment.NewLine}" +
                 $"Поворот по Y - стрелочки влево, вправо, {Environment.NewLine}" +
                 $"Поворот по Z - Q, E{Environment.NewLine}" +
-                $"Масштаб - колёсико мыши", "Приветствие");
+                $"Масштаб - колёсико мыши{Environment.NewLine}" +
+                "Cброс позиции - R", "Приветствие");
         }
 
         private void MainForm_Paint(object sender, PaintEventArgs e)
         {
-            _figure.Draw(e.Graphics);
+            _golem.Draw(e.Graphics);
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
@@ -35,34 +36,37 @@ namespace Golem
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    _figure.MoveUp(1);
+                    _golem.MoveUp(1);
                     break;
                 case Keys.S:
-                    _figure.MoveDown(1);
+                    _golem.MoveDown(1);
                     break;
                 case Keys.A:
-                    _figure.MoveLeft(1);
+                    _golem.MoveLeft(1);
                     break;
                 case Keys.D:
-                    _figure.MoveRight(1);
+                    _golem.MoveRight(1);
                     break;
                 case Keys.Q:
-                    _figure.RotateZ(0.1f);
+                    _golem.RotateZ(0.1f);
                     break;
                 case Keys.E:
-                    _figure.RotateZ(-0.1f);
+                    _golem.RotateZ(-0.1f);
                     break;
                 case Keys.Up:
-                    _figure.RotateX(-0.1f);
+                    _golem.RotateX(-0.1f);
                     break;
                 case Keys.Down:
-                    _figure.RotateX(0.1f);
+                    _golem.RotateX(0.1f);
                     break;
                 case Keys.Left:
-                    _figure.RotateY(-0.1f);
+                    _golem.RotateY(-0.1f);
                     break;
                 case Keys.Right:
-                    _figure.RotateY(0.1f);
+                    _golem.RotateY(0.1f);
+                    break;
+                case Keys.R:
+                    _golem.RestorePosition();
                     break;
             }
         }
@@ -70,9 +74,14 @@ namespace Golem
         private void MainForm_MouseWheel(object? sender, MouseEventArgs e)
         {
             if (e.Delta > 0)
-                _figure.Scale(1.25F);
+                _golem.Scale(1.25F);
             else
-                _figure.Scale(0.8F);
+                _golem.Scale(0.8F);
+        }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {           
+            _golem.MoveTo(Width / 2, Height / 2);
         }
     }
 }

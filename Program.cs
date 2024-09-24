@@ -1,4 +1,4 @@
-namespace Golem
+namespace GolemApp
 {
     internal static class Program
     {

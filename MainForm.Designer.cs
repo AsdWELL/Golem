@@ -1,4 +1,4 @@
-﻿namespace Golem
+﻿namespace GolemApp
 {
     partial class MainForm
     {
@@ -34,13 +34,13 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(782, 553);
-            FormBorderStyle = FormBorderStyle.Fixed3D;
+            ClientSize = new Size(786, 557);
             MaximizeBox = false;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Голем 3D";
             Load += MainForm_Load;
+            SizeChanged += MainForm_SizeChanged;
             Paint += MainForm_Paint;
             KeyDown += MainForm_KeyDown;
             ResumeLayout(false);

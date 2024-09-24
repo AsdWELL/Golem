@@ -1,9 +1,9 @@
-﻿namespace Golem
+﻿namespace GolemApp
 {   
-    public class Figure
+    public class Golem
     {
         /// <summary>
-        /// Список точек
+        /// Список точек текущего положения фигуры
         /// </summary>
         private List<Point> _points;
 
@@ -38,7 +38,7 @@
         /// <param name="scale">Масштаб</param>
         /// <param name="offsetX">Смещение по оси X</param>
         /// <param name="offsetY">Смещение по оси Y</param>
-        public Figure(float scale, float offsetX, float offsetY)
+        public Golem(float scale, float offsetX, float offsetY)
         {
             _scale = scale;
             _offsetX = offsetX;
@@ -174,7 +174,7 @@
                 [34],
                 [35],
                 [36],
-                [72],
+                null,
                 //обратная сторона
                 [38, 60],
                 null,
@@ -223,6 +223,14 @@
                     Y = -point.Y * _scale + _offsetY
                 }
             )];
+        }
+
+        public void RestorePosition()
+        {
+            _points.Clear();
+            AddPoints();
+
+            FigureChanged?.Invoke();
         }
 
         /// <summary>
@@ -286,6 +294,19 @@
         /// </summary>
         /// <param name="offset">Смещение</param>
         public void MoveLeft(float offset) => Move(-offset, 0, 0);
+
+        /// <summary>
+        /// Перемещает фигуру в указанную точку
+        /// </summary>
+        /// <param name="x">Координата по X</param>
+        /// <param name="y">Координата по Y</param>
+        public void MoveTo(float x, float y)
+        {           
+            _offsetX = x;
+            _offsetY = y;
+
+            FigureChanged?.Invoke();
+        }
 
         /// <summary>
         /// Увеличивает фигуру

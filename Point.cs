@@ -1,4 +1,4 @@
-﻿namespace Golem
+﻿namespace GolemApp
 {
     public class Point(float x, float y, float z)
     {
