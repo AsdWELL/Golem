@@ -119,20 +119,6 @@
             _points.Add(new Point(8, 7, 4)); //58
             _points.Add(new Point(3, 7, 4)); //59
             _points.Add(new Point(3, 12, 4)); //60
-
-            //лицо
-            _points.Add(new Point(-2, 10.5F, 4)); //61
-            _points.Add(new Point(3, 10.5F, 4)); //62
-            _points.Add(new Point(3, 10, 4)); //63
-            _points.Add(new Point(2, 10, 4)); //64
-            _points.Add(new Point(2, 8, 4)); //65
-            _points.Add(new Point(1, 8, 4)); //66
-            _points.Add(new Point(1, 9, 4)); //67
-            _points.Add(new Point(0, 9, 4)); //68
-            _points.Add(new Point(0, 8, 4)); //69
-            _points.Add(new Point(-1, 8, 4)); //70
-            _points.Add(new Point(-1, 10, 4)); //71
-            _points.Add(new Point(-2, 10, 4)); //72
         }
 
         private void AddTransitions()
@@ -198,19 +184,7 @@
                 [57],
                 [58],
                 [59],
-                [60],
-                null,
-                [62],
-                [63],
-                [64],
-                [65],
-                [66],
-                [67],
-                [68],
-                [69],
-                [70],
-                [71],
-                [72]
+                [60]
             ];
         }
 
@@ -389,11 +363,11 @@
         {
             _points.ForEach(point =>
             {
-                (float x, float y, float z) = point;
+                (float x, float y, float z, float w) = point;
 
-                point.X = x * matrix[0, 0] + y * matrix[0, 1] + z * matrix[0, 2] + 1 * matrix[0, 3];
-                point.Y = x * matrix[1, 0] + y * matrix[1, 1] + z * matrix[1, 2] + 1 * matrix[1, 3];
-                point.Z = x * matrix[2, 0] + y * matrix[2, 1] + z * matrix[2, 2] + 1 * matrix[2, 3];
+                point.X = x * matrix[0, 0] + y * matrix[0, 1] + z * matrix[0, 2] + w * matrix[0, 3];
+                point.Y = x * matrix[1, 0] + y * matrix[1, 1] + z * matrix[1, 2] + w * matrix[1, 3];
+                point.Z = x * matrix[2, 0] + y * matrix[2, 1] + z * matrix[2, 2] + w * matrix[2, 3];
             });
 
             FigureChanged?.Invoke();

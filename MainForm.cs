@@ -4,14 +4,38 @@ namespace GolemApp
     {
         private static Golem _golem;
 
+        private Dictionary<Keys, Action> _keyBindings;
+
+        private float OffsetValue { get; set; } = 1f;
+        private float RotationValue { get; set; } = 0.1f;
+
         public MainForm()
         {
             InitializeComponent();
 
             _golem = new Golem(10, Width / 2, Height / 2);
             _golem.FigureChanged += Refresh;
+            BindKeys();
 
             MouseWheel += MainForm_MouseWheel;
+        }
+
+        private void BindKeys()
+        {
+            _keyBindings = new Dictionary<Keys, Action>
+            {
+                { Keys.W, () => _golem.MoveUp(OffsetValue) },
+                { Keys.S, () => _golem.MoveDown(OffsetValue) },
+                { Keys.A, () => _golem.MoveLeft(OffsetValue) },
+                { Keys.D, () => _golem.MoveRight(OffsetValue) },
+                { Keys.Q, () => _golem.RotateZ(RotationValue) },
+                { Keys.E, () => _golem.RotateZ(-RotationValue) },
+                { Keys.Up, () => _golem.RotateX(-RotationValue) },
+                { Keys.Down, () => _golem.RotateX(RotationValue) },
+                { Keys.Left, () => _golem.RotateY(-RotationValue) },
+                { Keys.Right, () => _golem.RotateY(RotationValue) },
+                { Keys.R, _golem.RestorePosition }
+            };
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -33,50 +57,13 @@ namespace GolemApp
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            switch (e.KeyCode)
-            {
-                case Keys.W:
-                    _golem.MoveUp(1);
-                    break;
-                case Keys.S:
-                    _golem.MoveDown(1);
-                    break;
-                case Keys.A:
-                    _golem.MoveLeft(1);
-                    break;
-                case Keys.D:
-                    _golem.MoveRight(1);
-                    break;
-                case Keys.Q:
-                    _golem.RotateZ(0.1f);
-                    break;
-                case Keys.E:
-                    _golem.RotateZ(-0.1f);
-                    break;
-                case Keys.Up:
-                    _golem.RotateX(-0.1f);
-                    break;
-                case Keys.Down:
-                    _golem.RotateX(0.1f);
-                    break;
-                case Keys.Left:
-                    _golem.RotateY(-0.1f);
-                    break;
-                case Keys.Right:
-                    _golem.RotateY(0.1f);
-                    break;
-                case Keys.R:
-                    _golem.RestorePosition();
-                    break;
-            }
+            if (_keyBindings.TryGetValue(e.KeyCode, out var action))
+                action.Invoke();
         }
 
         private void MainForm_MouseWheel(object? sender, MouseEventArgs e)
         {
-            if (e.Delta > 0)
-                _golem.Scale(1.25F);
-            else
-                _golem.Scale(0.8F);
+            _golem.Scale(e.Delta > 0 ? 1.25f : 0.8f);
         }
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
