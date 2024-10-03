@@ -28,11 +28,6 @@
         private float _offsetY;
 
         /// <summary>
-        /// Событие, срабатывающее при изменении масштаба или смещения фигуры
-        /// </summary>
-        public event Action FigureChanged;
-
-        /// <summary>
         /// Конструктор фигуры
         /// </summary>
         /// <param name="scale">Масштаб</param>
@@ -203,8 +198,6 @@
         {
             _points.Clear();
             AddPoints();
-
-            FigureChanged?.Invoke();
         }
 
         /// <summary>
@@ -224,6 +217,49 @@
                 foreach (int j in _transitions[i])
                     g.DrawLine(Pens.Black, screenPoints[i], screenPoints[j - 1]);
             }
+        }
+
+        public void DrawProjectionX()
+        {
+            float[,] matrix = new float[,]
+            {
+                { 0, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, 0 },
+                { 0, 0, 0, 1 }
+            };
+
+            MultiplyBy(matrix);
+
+            _points.ForEach(point => (point.X, point.Y) = (point.Y, point.Z));
+        }
+
+        public void DrawProjectionY()
+        {
+            float[,] matrix = new float[,]
+            {
+                { 1, 0, 0, 0 },
+                { 0, 0, 0, 0 },
+                { 0, 0, 1, 0 },
+                { 0, 0, 0, 1 }
+            };
+
+            MultiplyBy(matrix);
+
+            _points.ForEach(point => point.Y = point.Z);
+        }
+
+        public void DrawProjectionZ()
+        {
+            float[,] matrix = new float[,]
+            {
+                { 1, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 0, 0 },
+                { 0, 0, 0, 1 }
+            };
+
+            MultiplyBy(matrix);
         }
 
         /// <summary>
@@ -278,8 +314,6 @@
         {           
             _offsetX = x;
             _offsetY = y;
-
-            FigureChanged?.Invoke();
         }
 
         /// <summary>
@@ -369,8 +403,6 @@
                 point.Y = x * matrix[1, 0] + y * matrix[1, 1] + z * matrix[1, 2] + w * matrix[1, 3];
                 point.Z = x * matrix[2, 0] + y * matrix[2, 1] + z * matrix[2, 2] + w * matrix[2, 3];
             });
-
-            FigureChanged?.Invoke();
         }
     }
 }

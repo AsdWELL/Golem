@@ -14,7 +14,6 @@ namespace GolemApp
             InitializeComponent();
 
             _golem = new Golem(10, Width / 2, Height / 2);
-            _golem.FigureChanged += Refresh;
             BindKeys();
 
             MouseWheel += MainForm_MouseWheel;
@@ -34,7 +33,10 @@ namespace GolemApp
                 { Keys.Down, () => _golem.RotateX(RotationValue) },
                 { Keys.Left, () => _golem.RotateY(-RotationValue) },
                 { Keys.Right, () => _golem.RotateY(RotationValue) },
-                { Keys.R, _golem.RestorePosition }
+                { Keys.R, _golem.RestorePosition },
+                { Keys.X, _golem.DrawProjectionX },
+                { Keys.Y, _golem.DrawProjectionY},
+                { Keys.Z, _golem.DrawProjectionZ },
             };
         }
 
@@ -59,16 +61,22 @@ namespace GolemApp
         {
             if (_keyBindings.TryGetValue(e.KeyCode, out var action))
                 action.Invoke();
+
+            Refresh();
         }
 
         private void MainForm_MouseWheel(object? sender, MouseEventArgs e)
         {
             _golem.Scale(e.Delta > 0 ? 1.25f : 0.8f);
+
+            Refresh();
         }
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {           
             _golem.MoveTo(Width / 2, Height / 2);
+
+            Refresh();
         }
     }
 }
