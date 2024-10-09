@@ -1,11 +1,14 @@
-﻿namespace GolemApp
+﻿using GolemApp.Drawing;
+using static GolemApp.Extensions.Utils;
+
+namespace GolemApp
 {   
     public class Golem
     {
         /// <summary>
         /// Список точек текущего положения фигуры
         /// </summary>
-        private List<Point> _points;
+        private List<Point3D> _points;
 
         /// <summary>
         /// Матрица переходов
@@ -13,19 +16,44 @@
         private int[][] _transitions;
 
         /// <summary>
+        /// Массив кубов, из которых состоит фигура
+        /// </summary>
+        private Cube[] _cubes;
+
+        /// <summary>
         /// Масштаб фигуры
         /// </summary>
-        private float _scale;
+        private double _scale;
 
         /// <summary>
         /// Смещение по Х
         /// </summary>
-        private float _offsetX;
+        private double _offsetX;
 
         /// <summary>
         /// Смещение по У
         /// </summary>
-        private float _offsetY;
+        private double _offsetY;
+
+        /// <summary>
+        /// z-буфер
+        /// </summary>
+        private ZBuffer _zBuffer;
+
+        /// <summary>
+        /// Цвет заднего фона
+        /// </summary>
+        private Color BackgroundColor {  get; set; } = Color.White;
+
+        /// <summary>
+        /// Цвет обводки
+        /// </summary>
+        public Color StrokeColor { get; set; } = Color.Black;
+
+        /// <summary>
+        /// Цвет заливки
+        /// </summary>
+        public Color FillColor { get; set; } = Color.White;
 
         /// <summary>
         /// Конструктор фигуры
@@ -33,13 +61,11 @@
         /// <param name="scale">Масштаб</param>
         /// <param name="offsetX">Смещение по оси X</param>
         /// <param name="offsetY">Смещение по оси Y</param>
-        public Golem(float scale, float offsetX, float offsetY)
+        public Golem(double scale, double offsetX, double offsetY)
         {
             _scale = scale;
             _offsetX = offsetX;
             _offsetY = offsetY;
-
-            _points = [];
             
             AddPoints();
             AddTransitions();
@@ -49,71 +75,76 @@
         {
             //передняя сторона
             //тело
-            _points.Add(new Point(-2, 12, 10)); //1
-            _points.Add(new Point(-2, 7, 10)); //2
-            _points.Add(new Point(-7, 7, 10)); //3
-            _points.Add(new Point(-7, -11, 10)); //4
-            _points.Add(new Point(-5, -11, 10)); //5
-            _points.Add(new Point(-5, -1, 10)); //6
-            _points.Add(new Point(-3, -1, 10)); //7
-            _points.Add(new Point(-3, -3, 10)); //8
-            _points.Add(new Point(-4, -3, 10)); //9
-            _points.Add(new Point(-4, -13, 10)); //10
-            _points.Add(new Point(-1, -13, 10)); //11
-            _points.Add(new Point(-1, -3, 10)); //12
-            _points.Add(new Point(2, -3, 10)); //13
-            _points.Add(new Point(2, -13, 10)); //14
-            _points.Add(new Point(5, -13, 10)); //15
-            _points.Add(new Point(5, -3, 10)); //16
-            _points.Add(new Point(4, -3, 10)); //17
-            _points.Add(new Point(4, -1, 10)); //18
-            _points.Add(new Point(6, -1, 10)); //19
-            _points.Add(new Point(6, -11, 10)); //20
-            _points.Add(new Point(8, -11, 10)); //21
-            _points.Add(new Point(8, 7, 10)); //22
-            _points.Add(new Point(3, 7, 10)); //23
-            _points.Add(new Point(3, 12, 10)); //24
-
-            //лицо
-            _points.Add(new Point(-2, 10.5F, 10)); //25
-            _points.Add(new Point(3, 10.5F, 10)); //26
-            _points.Add(new Point(3, 10, 10)); //27
-            _points.Add(new Point(2, 10, 10)); //28
-            _points.Add(new Point(2, 8, 10)); //29
-            _points.Add(new Point(1, 8, 10)); //30
-            _points.Add(new Point(1, 9, 10)); //31
-            _points.Add(new Point(0, 9, 10)); //32
-            _points.Add(new Point(0, 8, 10)); //32
-            _points.Add(new Point(-1, 8, 10)); //34
-            _points.Add(new Point(-1, 10, 10)); //35
-            _points.Add(new Point(-2, 10, 10)); //36
-
-            //задняя сторона
-            //тело
-            _points.Add(new Point(-2, 12, 4)); //37
-            _points.Add(new Point(-2, 7, 4)); //38
-            _points.Add(new Point(-7, 7, 4)); //39
-            _points.Add(new Point(-7, -11, 4)); //40
-            _points.Add(new Point(-5, -11, 4)); //41
-            _points.Add(new Point(-5, -1, 4)); //42
-            _points.Add(new Point(-3, -1, 4)); //43
-            _points.Add(new Point(-3, -3, 4)); //44
-            _points.Add(new Point(-4, -3, 4)); //45
-            _points.Add(new Point(-4, -13, 4)); //46
-            _points.Add(new Point(-1, -13, 4)); //47
-            _points.Add(new Point(-1, -3, 4)); //48
-            _points.Add(new Point(2, -3, 4)); //49
-            _points.Add(new Point(2, -13, 4)); //50
-            _points.Add(new Point(5, -13, 4)); //51
-            _points.Add(new Point(5, -3, 4)); //52
-            _points.Add(new Point(4, -3, 4)); //53
-            _points.Add(new Point(4, -1, 4)); //54
-            _points.Add(new Point(6, -1, 4)); //55
-            _points.Add(new Point(6, -11, 4)); //56
-            _points.Add(new Point(8, -11, 4)); //57
-            _points.Add(new Point(8, 7, 4)); //58
-            _points.Add(new Point(3, 7, 4)); //59
-            _points.Add(new Point(3, 12, 4)); //60
+            _points =
+            [
+                new Point3D(-2, 12, 10), //1
+                new Point3D(-2, 7, 10), //2
+                new Point3D(-7, 7, 10), //3
+                new Point3D(-7, -11, 10), //4
+                new Point3D(-5, -11, 10), //5
+                new Point3D(-5, -1, 10), //6
+                new Point3D(-3, -1, 10), //7
+                new Point3D(-3, -3, 10), //8
+                new Point3D(-4, -3, 10), //9
+                new Point3D(-4, -13, 10), //10
+                new Point3D(-1, -13, 10), //11
+                new Point3D(-1, -3, 10), //12
+                new Point3D(2, -3, 10), //13
+                new Point3D(2, -13, 10), //14
+                new Point3D(5, -13, 10), //15
+                new Point3D(5, -3, 10), //16
+                new Point3D(4, -3, 10), //17
+                new Point3D(4, -1, 10), //18
+                new Point3D(6, -1, 10), //19
+                new Point3D(6, -11, 10), //20
+                new Point3D(8, -11, 10), //21
+                new Point3D(8, 7, 10), //22
+                new Point3D(3, 7, 10), //23
+                new Point3D(3, 12, 10), //24
+                //лицо
+                new Point3D(-2, 10.5, 10), //25
+                new Point3D(3, 10.5, 10), //26
+                new Point3D(3, 10, 10), //27
+                new Point3D(2, 10, 10), //28
+                new Point3D(2, 8, 10), //29
+                new Point3D(1, 8, 10), //30
+                new Point3D(1, 9, 10), //31
+                new Point3D(0, 9, 10), //32
+                new Point3D(0, 8, 10), //32
+                new Point3D(-1, 8, 10), //34
+                new Point3D(-1, 10, 10), //35
+                new Point3D(-2, 10, 10), //36
+                //задняя сторона
+                //тело
+                new Point3D(-2, 12, 4), //37
+                new Point3D(-2, 7, 4), //38
+                new Point3D(-7, 7, 4), //39
+                new Point3D(-7, -11, 4), //40
+                new Point3D(-5, -11, 4), //41
+                new Point3D(-5, -1, 4), //42
+                new Point3D(-3, -1, 4), //43
+                new Point3D(-3, -3, 4), //44
+                new Point3D(-4, -3, 4), //45
+                new Point3D(-4, -13, 4), //46
+                new Point3D(-1, -13, 4), //47
+                new Point3D(-1, -3, 4), //48
+                new Point3D(2, -3, 4), //49
+                new Point3D(2, -13, 4), //50
+                new Point3D(5, -13, 4), //51
+                new Point3D(5, -3, 4), //52
+                new Point3D(4, -3, 4), //53
+                new Point3D(4, -1, 4), //54
+                new Point3D(6, -1, 4), //55
+                new Point3D(6, -11, 4), //56
+                new Point3D(8, -11, 4), //57
+                new Point3D(8, 7, 4), //58
+                new Point3D(3, 7, 4), //59
+                new Point3D(3, 12, 4), //60
+                new Point3D(-5, 7, 10), //61 (вспомогательная точка для разделения левой руки и туловища)
+                new Point3D(-5, 7, 4), //62 (вспомогательная точка для разделения левой руки и туловища)
+                new Point3D(6, 7, 10), //63 (вспомогательная точка для разделения правой руки и туловища)
+                new Point3D(6, 7, 4), //64 (вспомогательная точка для разделения правой руки и туловища)
+            ];
         }
 
         private void AddTransitions()
@@ -183,20 +214,43 @@
             ];
         }
 
-        private List<PointF> TransformPoints()
+        private void InitializeCubes(List<Point3D> points)
+        {
+            _cubes = [
+                new Cube([points[1], points[0], points[22], points[23], 
+                    points[37], points[36], points[58], points[59]]), //голова
+                
+                new Cube([points[3], points[2], points[4], points[60],
+                    points[39], points[38], points[40], points[61]]), //левая рука
+                
+                new Cube([points[19], points[62], points[20], points[21],
+                    points[55], points[63], points[56], points[57]]), //правая рука
+
+                new Cube([points[5], points[60], points[18], points[62],
+                    points[41], points[61], points[54], points[63]]), //туловище
+
+                new Cube([points[7], points[6], points[16], points[17],
+                    points[43], points[42], points[52], points[53]]), //между ногами и туловищем
+
+                new Cube([points[9], points[8], points[10], points[11],
+                    points[45], points[44], points[46], points[47]]), //левая нога
+
+                new Cube([points[13], points[12], points[14], points[15],
+                    points[49], points[48], points[50], points[51]]), //правая нога
+                ];
+        }
+
+        private List<Point3D> TransformPoints()
         {
             return [.. _points.Select(point =>
-                new PointF
-                {
-                    X = point.X * _scale + _offsetX,
-                    Y = -point.Y * _scale + _offsetY
-                }
+                new Point3D(point.X * _scale + _offsetX,
+                    -point.Y * _scale + _offsetY,
+                    point.Z * _scale)
             )];
         }
 
         public void RestorePosition()
         {
-            _points.Clear();
             AddPoints();
         }
 
@@ -204,24 +258,59 @@
         /// Отрисовывает фигуру
         /// </summary>
         /// <param name="g"></param>
-        public void Draw(Graphics g)
+        public Bitmap Draw(Bitmap bitmap)
         {
-            g.Clear(Color.White);
+            _zBuffer = new ZBuffer(bitmap.Size);
+            
+            Graphics g = Graphics.FromImage(bitmap);
+            g.Clear(BackgroundColor);
 
             var screenPoints = TransformPoints();
 
+            InitializeCubes(screenPoints);
+
+            //закрашиваем фигуру
+            foreach (var cube in _cubes)
+                foreach (var side in cube.GetSidesAsTriangles())
+                    foreach (var triangle in side)
+                        foreach (var point in Rasterizer.GetTrianglePoints([.. triangle.Vertices]))
+                        {
+                            if (_zBuffer[point.X, point.Y] > Floor(point.Z))
+                                continue;
+
+                            _zBuffer[point.X, point.Y] = point.Z;
+                            bitmap.SetPixel(Floor(point.X), Floor(point.Y), FillColor);
+                        }
+
+            //отрисовываем линии
             for (int i = 0; i < _transitions.Length; i++)
             {
                 if (_transitions[i] == null)
                     continue;
                 foreach (int j in _transitions[i])
-                    g.DrawLine(Pens.Black, screenPoints[i], screenPoints[j - 1]);
+                {
+                    var linePoints = GetPoints(screenPoints[i], screenPoints[j - 1]);
+
+                    foreach (var point in linePoints)
+                    {
+                        if (_zBuffer[point.X, point.Y] > Floor(point.Z +_scale / 3))
+                            continue;
+
+                        _zBuffer[point.X, point.Y] = point.Z;
+                        bitmap.SetPixel(Floor(point.X), Floor(point.Y), StrokeColor);
+                    }
+                }
             }
+
+            return bitmap;
         }
 
+        /// <summary>
+        /// Построения проекции на ось X
+        /// </summary>
         public void DrawProjectionX()
         {
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 { 0, 0, 0, 0 },
                 { 0, 1, 0, 0 },
@@ -234,9 +323,12 @@
             _points.ForEach(point => (point.X, point.Y) = (point.Y, point.Z));
         }
 
+        /// <summary>
+        /// Построения проекции на ось Y
+        /// </summary>
         public void DrawProjectionY()
         {
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 { 1, 0, 0, 0 },
                 { 0, 0, 0, 0 },
@@ -249,9 +341,12 @@
             _points.ForEach(point => point.Y = point.Z);
         }
 
+        /// <summary>
+        /// Построения проекции на ось Z
+        /// </summary>
         public void DrawProjectionZ()
         {
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 { 1, 0, 0, 0 },
                 { 0, 1, 0, 0 },
@@ -268,9 +363,9 @@
         /// <param name="dx">Смещение по X</param>
         /// <param name="dy">Смещение по Y</param>
         /// <param name="dz">Смещение по Z</param>
-        public void Move(float dx, float dy, float dz)
+        public void Move(double dx, double dy, double dz)
         {
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 {1, 0, 0, dx },
                 {0, 1, 0, dy },
@@ -285,32 +380,31 @@
         /// Перемещает фигуру вверх
         /// </summary>
         /// <param name="offset">Смещение</param>
-        public void MoveUp(float offset) => Move(0, offset, 0);
+        public void MoveUp(double offset) => Move(0, offset, 0);
 
         /// <summary>
         /// Перемещает фигуру вниз
         /// </summary>
         /// <param name="offset">Смещение</param>
-        public void MoveDown(float offset) => Move(0, -offset, 0);
+        public void MoveDown(double offset) => Move(0, -offset, 0);
 
         /// <summary>
         /// Перемещает фигуру вправо
         /// </summary>
         /// <param name="offset">Смещение</param>
-        public void MoveRight(float offset) => Move(offset, 0, 0);
+        public void MoveRight(double offset) => Move(offset, 0, 0);
 
         /// <summary>
         /// Перемещает фигуру влево
         /// </summary>
         /// <param name="offset">Смещение</param>
-        public void MoveLeft(float offset) => Move(-offset, 0, 0);
-
+        public void MoveLeft(double offset) => Move(-offset, 0, 0);
         /// <summary>
         /// Перемещает фигуру в указанную точку
         /// </summary>
         /// <param name="x">Координата по X</param>
         /// <param name="y">Координата по Y</param>
-        public void MoveTo(float x, float y)
+        public void MoveTo(double x, double y)
         {           
             _offsetX = x;
             _offsetY = y;
@@ -320,9 +414,9 @@
         /// Увеличивает фигуру
         /// </summary>
         /// <param name="scale">Множитель увеличения</param>
-        public void Scale(float scale)
+        public void Scale(double scale)
         {
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 {scale, 0, 0, 0 },
                 {0, scale, 0, 0 },
@@ -337,12 +431,12 @@
         /// Врощает фигуру по оси X
         /// </summary>
         /// <param name="angle">Угол поворота</param>
-        public void RotateX(float angle)
+        public void RotateX(double angle)
         {
-            float sin = MathF.Sin(angle);
-            float cos = MathF.Cos(angle);
+            double sin = Math.Sin(angle);
+            double cos = Math.Cos(angle);
 
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 {1, 0, 0, 0},
                 {0, cos, -sin, 0},
@@ -357,12 +451,12 @@
         /// Врощает фигуру по оси Y
         /// </summary>
         /// <param name="angle">Угол поворота</param>
-        public void RotateY(float angle)
+        public void RotateY(double angle)
         {
-            float sin = MathF.Sin(-angle);
-            float cos = MathF.Cos(-angle);
+            double sin = Math.Sin(-angle);
+            double cos = Math.Cos(-angle);
 
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 {cos, 0, -sin, 0},
                 {0, 1, 0, 0},
@@ -377,12 +471,12 @@
         /// Врощает фигуру по оси Z
         /// </summary>
         /// <param name="angle">Угол поворота</param>
-        public void RotateZ(float angle)
+        public void RotateZ(double angle)
         {
-            float sin = MathF.Sin(angle);
-            float cos = MathF.Cos(angle);
+            double sin = Math.Sin(angle);
+            double cos = Math.Cos(angle);
 
-            float[,] matrix = new float[,]
+            double[,] matrix = new double[,]
             {
                 {cos, -sin, 0, 0},
                 {sin, cos, 0, 0},
@@ -393,16 +487,118 @@
             MultiplyBy(matrix);
         }
 
-        private void MultiplyBy(float[,] matrix)
+        private void MultiplyBy(double[,] matrix)
         {
             _points.ForEach(point =>
             {
-                (float x, float y, float z, float w) = point;
+                (double x, double y, double z, double w) = point;
 
                 point.X = x * matrix[0, 0] + y * matrix[0, 1] + z * matrix[0, 2] + w * matrix[0, 3];
                 point.Y = x * matrix[1, 0] + y * matrix[1, 1] + z * matrix[1, 2] + w * matrix[1, 3];
                 point.Z = x * matrix[2, 0] + y * matrix[2, 1] + z * matrix[2, 2] + w * matrix[2, 3];
             });
+        }
+
+        /// <summary>
+        /// Алгоритм Брезенхема для нахождения точек отрезка
+        /// </summary>
+        /// <param name="p1">Начало отрезка</param>
+        /// <param name="p2">Конец отрезка</param>
+        /// <returns>Список точек отрезка</returns>
+        private List<Point3D> GetPoints(Point3D p1, Point3D p2)
+        {
+            double dE = 1;
+
+            List<Point3D> points = [ p1 ];
+
+            double dx = Math.Abs(p2.X - p1.X);
+            double dy = Math.Abs(p2.Y - p1.Y);
+            double dz = Math.Abs(p2.Z - p1.Z);
+
+            double xs = p2.X > p1.X ? 1 : -1;
+            double ys = p2.Y > p1.Y ? 1 : -1;
+            double zs = p2.Z > p1.Z ? 1 : -1;
+
+            double
+                d1,
+                d2;
+            double
+                x1 = p1.X,
+                y1 = p1.Y,
+                z1 = p1.Z;
+
+            if (dx >= dy && dx >= dz)
+            {
+                d1 = 2 * dy - dx;
+                d2 = 2 * dz - dx;
+                while (Math.Abs(x1 - p2.X) > dE)
+                {
+                    x1 += xs;
+                    if (d1 >= 0)
+                    {
+                        y1 += ys;
+                        d1 -= 2 * dx;
+                    }
+                    if (d2 >= 0)
+                    {
+                        z1 += zs;
+                        d2 -= 2 * dx;
+                    }
+                    d1 += 2 * dy;
+                    d2 += 2 * dz;
+                    points.Add(new Point3D(x1, y1, z1));
+                }
+            }
+
+            else if (dy >= dx && dy >= dz)
+            {
+                d1 = 2 * dx - dy;
+                d2 = 2 * dz - dy;
+                while (Math.Abs((int)y1 - (int)p2.Y) > dE)
+                {
+                    y1 += ys;
+                    if (d1 >= 0)
+                    {
+                        x1 += xs;
+                        d1 -= 2 * dy;
+                    }
+                    if (d2 >= 0)
+                    {
+                        z1 += zs;
+                        d2 -= 2 * dy;
+                    }
+                    d1 += 2 * dx;
+                    d2 += 2 * dz;
+                    points.Add(new Point3D(x1, y1, z1));
+                }
+            }
+
+            else
+            {
+                d1 = 2 * dy - dz;
+                d2 = 2 * dx - dz;
+                while (Math.Abs((int)z1 - (int)p2.Z) > dE)
+                {
+                    z1 += zs;
+                    if (d1 >= 0)
+                    {
+                        y1 += ys;
+                        d1 -= 2 * dz;
+                    }
+                    if (d2 >= 0)
+                    {
+                        x1 += xs;
+                        d2 -= 2 * dz;
+                    }
+                    d1 += 2 * dy;
+                    d2 += 2 * dx;
+                    points.Add(new Point3D(x1, y1, z1));
+                }
+            }
+
+            points.Add(p2);
+
+            return points;
         }
     }
 }

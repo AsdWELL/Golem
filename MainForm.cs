@@ -42,19 +42,24 @@ namespace GolemApp
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            MessageBox.Show($"Лабораторная работа №2{Environment.NewLine}" +
+            MessageBox.Show($"Лабораторная работа №4{Environment.NewLine}" +
                 $"Годов, Поршнев, Тында{Environment.NewLine}" +
                 $"Перемещение - WASD{Environment.NewLine}" +
                 $"Поворот по X - стрелочки вверх, вниз{Environment.NewLine}" +
                 $"Поворот по Y - стрелочки влево, вправо, {Environment.NewLine}" +
                 $"Поворот по Z - Q, E{Environment.NewLine}" +
                 $"Масштаб - колёсико мыши{Environment.NewLine}" +
+                $"Отобразить проекцию на ось X - X{Environment.NewLine}" +
+                $"Отобразить проекцию на ось Y - Y{Environment.NewLine}" +
+                $"Отобразить проекцию на ось Z - Z{Environment.NewLine}" +
                 "Cброс позиции - R", "Приветствие");
         }
 
         private void MainForm_Paint(object sender, PaintEventArgs e)
         {
-            _golem.Draw(e.Graphics);
+            Bitmap bitmap = new Bitmap(Width, Height);
+            
+            pictureBox.Image = _golem.Draw(bitmap);
         }
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
@@ -62,21 +67,21 @@ namespace GolemApp
             if (_keyBindings.TryGetValue(e.KeyCode, out var action))
                 action.Invoke();
 
-            Refresh();
+            OnPaint(null);
         }
 
         private void MainForm_MouseWheel(object? sender, MouseEventArgs e)
         {
             _golem.Scale(e.Delta > 0 ? 1.25f : 0.8f);
 
-            Refresh();
+            OnPaint(null);
         }
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {           
             _golem.MoveTo(Width / 2, Height / 2);
 
-            Refresh();
+            OnPaint(null);
         }
     }
 }
