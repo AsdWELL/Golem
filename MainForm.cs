@@ -37,6 +37,8 @@ namespace GolemApp
                 { Keys.X, _golem.DrawProjectionX },
                 { Keys.Y, _golem.DrawProjectionY},
                 { Keys.Z, _golem.DrawProjectionZ },
+                {Keys.F, () => _golem.IsFill = !_golem.IsFill },
+                {Keys.C, SetGolemFillColor }
             };
         }
 
@@ -52,6 +54,8 @@ namespace GolemApp
                 $"Отобразить проекцию на ось X - X{Environment.NewLine}" +
                 $"Отобразить проекцию на ось Y - Y{Environment.NewLine}" +
                 $"Отобразить проекцию на ось Z - Z{Environment.NewLine}" +
+                $"Переключение заливки - F{Environment.NewLine}" +
+                $"Выбор цвета заливки - C{Environment.NewLine}" +
                 "Cброс позиции - R", "Приветствие");
         }
 
@@ -80,6 +84,17 @@ namespace GolemApp
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {           
             _golem.MoveTo(Width / 2, Height / 2);
+
+            OnPaint(null);
+        }
+
+        private void SetGolemFillColor()
+        {
+            if (ColorPicker.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            _golem.FillColor = ColorPicker.Color;
+            _golem.IsFill = true;
 
             OnPaint(null);
         }

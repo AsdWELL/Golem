@@ -1,4 +1,5 @@
-﻿using static GolemApp.Extensions.Utils;
+﻿using System.Drawing;
+using static GolemApp.Extensions.Utils;
 
 namespace GolemApp.Drawing
 {
@@ -13,13 +14,13 @@ namespace GolemApp.Drawing
 
         public ZBuffer(Size size)
         {
-            _size = size;
-
-            InitializeZBuffer();
+            InitializeZBuffer(size);
         }
 
-        private void InitializeZBuffer()
+        public void InitializeZBuffer(Size size)
         {
+            _size = size;
+            
             _zBuffer = new double[_size.Width, _size.Height];
             
             for (int i = 0; i < _size.Width; i++)
@@ -41,6 +42,19 @@ namespace GolemApp.Drawing
             {
                 _zBuffer[Floor(x), Floor(y)] = Floor(value);
             }
+        }
+
+        public bool CheckAndSetZValue(double x, double y, double z)
+        {
+            if (this[x, y] > Floor(z))
+                return false;
+            this[x, y] = z;
+            return true;
+        }
+
+        public bool CheckAndSetZValue(Point3D point)
+        {
+            return CheckAndSetZValue(point.X, point.Y, point.Z);
         }
     }
 }

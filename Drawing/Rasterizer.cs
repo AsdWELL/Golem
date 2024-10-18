@@ -8,9 +8,9 @@ namespace GolemApp.Drawing
         {
             vertices.Sort((x, y) => Floor(x.Y - y.Y));
 
-            var p1 = vertices[0];
-            var p2 = vertices[1];
-            var p3 = vertices[2];
+            Point3D p1 = vertices[0],
+                    p2 = vertices[1],
+                    p3 = vertices[2];
 
             double dP1P2, dP1P3;
 
@@ -26,25 +26,25 @@ namespace GolemApp.Drawing
 
             if (dP1P2 > dP1P3)
             {
-                for (var y = (int)p1.Y; y <= (int)p3.Y; y++)
+                for (int y = (int)p1.Y; y <= (int)p3.Y; y++)
                 {
                     if (y < p2.Y)
-                        foreach (var p in ProcessScanLine(y, p1, p3, p1, p2))
+                        foreach (Point3D p in ProcessScanLine(y, p1, p3, p1, p2))
                             yield return p;
                     else
-                        foreach (var p in ProcessScanLine(y, p1, p3, p2, p3))
+                        foreach (Point3D p in ProcessScanLine(y, p1, p3, p2, p3))
                             yield return p;
                 }
             }
             else
             {
-                for (var y = (int)p1.Y; y <= (int)p3.Y; y++)
+                for (int y = (int)p1.Y; y <= (int)p3.Y; y++)
                 {
                     if (y < p2.Y)
-                        foreach (var p in ProcessScanLine(y, p1, p2, p1, p3))
+                        foreach (Point3D p in ProcessScanLine(y, p1, p2, p1, p3))
                             yield return p;
                     else
-                        foreach (var p in ProcessScanLine(y, p2, p3, p1, p3))
+                        foreach (Point3D p in ProcessScanLine(y, p2, p3, p1, p3))
                             yield return p;
                 }
             }
@@ -62,8 +62,8 @@ namespace GolemApp.Drawing
 
         private static IEnumerable<Point3D> ProcessScanLine(int y, Point3D pa, Point3D pb, Point3D pc, Point3D pd)
         {
-            var gradient1 = pa.Y != pb.Y ? (y - pa.Y) / (pb.Y - pa.Y) : 1;
-            var gradient2 = pc.Y != pd.Y ? (y - pc.Y) / (pd.Y - pc.Y) : 1;
+            double gradient1 = pa.Y != pb.Y ? (y - pa.Y) / (pb.Y - pa.Y) : 1;
+            double gradient2 = pc.Y != pd.Y ? (y - pc.Y) / (pd.Y - pc.Y) : 1;
 
             int sx = (int)Interpolate(pa.X, pb.X, gradient1);
             int ex = (int)Interpolate(pc.X, pd.X, gradient2);
@@ -71,19 +71,19 @@ namespace GolemApp.Drawing
             double z1 = Interpolate(pa.Z, pb.Z, gradient1);
             double z2 = Interpolate(pc.Z, pd.Z, gradient2);
 
-            for (var x = sx; x < ex; x++)
+            for (int x = sx; x < ex; x++)
             {
                 float gradient = (x - sx) / (float)(ex - sx);
 
-                var z = Interpolate(z1, z2, gradient);
+                double z = Interpolate(z1, z2, gradient);
                 yield return new Point3D(x, y, z);
             }
 
-            for (var x = ex; x < sx; x++)
+            for (int x = ex; x < sx; x++)
             {
                 float gradient = (x - sx) / (float)(ex - sx);
 
-                var z = Interpolate(z1, z2, gradient);
+                double z = Interpolate(z1, z2, gradient);
                 yield return new Point3D(x, y, z);
             }
         }

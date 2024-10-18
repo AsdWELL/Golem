@@ -43,7 +43,7 @@ namespace GolemApp
         /// <summary>
         /// Цвет заднего фона
         /// </summary>
-        private Color BackgroundColor {  get; set; } = Color.White;
+        public Color BackgroundColor {  get; set; } = Color.White;
 
         /// <summary>
         /// Цвет обводки
@@ -53,7 +53,12 @@ namespace GolemApp
         /// <summary>
         /// Цвет заливки
         /// </summary>
-        public Color FillColor { get; set; } = Color.White;
+        public Color FillColor { get; set; } = Color.LightBlue;
+
+        /// <summary>
+        /// Указывает, нужно ли заливать фигуру
+        /// </summary>
+        public bool IsFill { get; set; } = false;
 
         /// <summary>
         /// Конструктор фигуры
@@ -260,7 +265,7 @@ namespace GolemApp
         /// <param name="g"></param>
         public Bitmap Draw(Bitmap bitmap)
         {
-            _zBuffer = new ZBuffer(bitmap.Size);
+            _zBuffer.InitializeZBuffer(bitmap.Size);
             
             Graphics g = Graphics.FromImage(bitmap);
             g.Clear(BackgroundColor);
@@ -274,13 +279,8 @@ namespace GolemApp
                 foreach (var side in cube.GetSidesAsTriangles())
                     foreach (var triangle in side)
                         foreach (var point in Rasterizer.GetTrianglePoints([.. triangle.Vertices]))
-                        {
-                            if (_zBuffer[point.X, point.Y] > Floor(point.Z))
-                                continue;
-
-                            _zBuffer[point.X, point.Y] = point.Z;
-                            bitmap.SetPixel(Floor(point.X), Floor(point.Y), FillColor);
-                        }
+                            if (_zBuffer.CheckAndSetZValue(point) && IsFill)
+                                bitmap.SetPixel(Floor(point.X), Floor(point.Y), FillColor);
 
             //отрисовываем линии
             for (int i = 0; i < _transitions.Length; i++)
@@ -288,18 +288,8 @@ namespace GolemApp
                 if (_transitions[i] == null)
                     continue;
                 foreach (int j in _transitions[i])
-                {
-                    var linePoints = GetPoints(screenPoints[i], screenPoints[j - 1]);
-
-                    foreach (var point in linePoints)
-                    {
-                        if (_zBuffer[point.X, point.Y] > Floor(point.Z +_scale / 3))
-                            continue;
-
-                        _zBuffer[point.X, point.Y] = point.Z;
+                    foreach (var point in GetLinePoints(screenPoints[i], screenPoints[j - 1]))
                         bitmap.SetPixel(Floor(point.X), Floor(point.Y), StrokeColor);
-                    }
-                }
             }
 
             return bitmap;
@@ -505,11 +495,14 @@ namespace GolemApp
         /// <param name="p1">Начало отрезка</param>
         /// <param name="p2">Конец отрезка</param>
         /// <returns>Список точек отрезка</returns>
-        private List<Point3D> GetPoints(Point3D p1, Point3D p2)
+        private IEnumerable<Point3D> GetLinePoints(Point3D p1, Point3D p2)
         {
-            double dE = 1;
+            double zError = _scale;
+            
+            if (_zBuffer.CheckAndSetZValue(p1.X, p1.Y, p1.Z + zError))
+                yield return p1;
 
-            List<Point3D> points = [ p1 ];
+            double dE = 1;
 
             double dx = Math.Abs(p2.X - p1.X);
             double dy = Math.Abs(p2.Y - p1.Y);
@@ -519,13 +512,8 @@ namespace GolemApp
             double ys = p2.Y > p1.Y ? 1 : -1;
             double zs = p2.Z > p1.Z ? 1 : -1;
 
-            double
-                d1,
-                d2;
-            double
-                x1 = p1.X,
-                y1 = p1.Y,
-                z1 = p1.Z;
+            double d1, d2;
+            (double x1, double y1, double z1, _) = p1;
 
             if (dx >= dy && dx >= dz)
             {
@@ -546,10 +534,10 @@ namespace GolemApp
                     }
                     d1 += 2 * dy;
                     d2 += 2 * dz;
-                    points.Add(new Point3D(x1, y1, z1));
+                    if (_zBuffer.CheckAndSetZValue(x1, y1, z1 + zError))
+                        yield return new Point3D(x1, y1, z1);
                 }
             }
-
             else if (dy >= dx && dy >= dz)
             {
                 d1 = 2 * dx - dy;
@@ -569,10 +557,10 @@ namespace GolemApp
                     }
                     d1 += 2 * dx;
                     d2 += 2 * dz;
-                    points.Add(new Point3D(x1, y1, z1));
+                    if (_zBuffer.CheckAndSetZValue(x1, y1, z1 + zError))
+                        yield return new Point3D(x1, y1, z1);
                 }
             }
-
             else
             {
                 d1 = 2 * dy - dz;
@@ -592,13 +580,13 @@ namespace GolemApp
                     }
                     d1 += 2 * dy;
                     d2 += 2 * dx;
-                    points.Add(new Point3D(x1, y1, z1));
+                    if (_zBuffer.CheckAndSetZValue(x1, y1, z1 + zError))
+                        yield return new Point3D(x1, y1, z1);
                 }
             }
 
-            points.Add(p2);
-
-            return points;
+            if (_zBuffer.CheckAndSetZValue(p2.X, p2.Y, p2.Z + zError))
+                yield return p2;
         }
     }
 }

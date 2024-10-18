@@ -29,13 +29,14 @@
         private void InitializeComponent()
         {
             pictureBox = new PictureBox();
+            ColorPicker = new ColorDialog();
             ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
             SuspendLayout();
             // 
             // pictureBox
             // 
             pictureBox.Dock = DockStyle.Fill;
-            pictureBox.Location = new System.Drawing.Point(0, 0);
+            pictureBox.Location = new Point(0, 0);
             pictureBox.Name = "pictureBox";
             pictureBox.Size = new Size(786, 557);
             pictureBox.TabIndex = 0;
@@ -62,5 +63,6 @@
         #endregion
 
         private PictureBox pictureBox;
+        private ColorDialog ColorPicker;
     }
 }

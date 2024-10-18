@@ -17,10 +17,5 @@
             z = Z;
             w = W;
         }
-
-        public static explicit operator PointF(Point3D point)
-        {
-            return new PointF((float)point.X, (float)point.Y);
-        }
     }
 }
