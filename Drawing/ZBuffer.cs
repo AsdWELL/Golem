@@ -1,21 +1,15 @@
-﻿using System.Drawing;
-using static GolemApp.Extensions.Utils;
+﻿using static GolemApp.Extensions.Utils;
 
 namespace GolemApp.Drawing
 {
     /// <summary>
     /// Класс, представляющий z-буфер
     /// </summary>
-    public class ZBuffer
+    public class ZBuffer()
     {
         private double[,] _zBuffer;
 
         private Size _size;
-
-        public ZBuffer(Size size)
-        {
-            InitializeZBuffer(size);
-        }
 
         public void InitializeZBuffer(Size size)
         {

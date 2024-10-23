@@ -71,6 +71,8 @@ namespace GolemApp
             _scale = scale;
             _offsetX = offsetX;
             _offsetY = offsetY;
+
+            _zBuffer = new ZBuffer();
             
             AddPoints();
             AddTransitions();
@@ -259,6 +261,20 @@ namespace GolemApp
             AddPoints();
         }
 
+        private Color GetFillColor(double z, double minZ, double maxZ)
+        {
+            double k = (z - minZ) / (maxZ - minZ);
+
+            //сглаживание коэффициента для более плавного перехода цветов
+            k = 1 - Math.Exp(-3.3 * k);
+
+            return Color.FromArgb(
+                Floor(Math.Clamp(FillColor.R * k, 0, 255)),
+                Floor(Math.Clamp(FillColor.G * k, 0, 255)),
+                Floor(Math.Clamp(FillColor.B * k, 0, 255))
+                );
+        }
+
         /// <summary>
         /// Отрисовывает фигуру
         /// </summary>
@@ -272,6 +288,9 @@ namespace GolemApp
 
             var screenPoints = TransformPoints();
 
+            double maxZ = screenPoints.Max(point => point.Z);
+            double minZ = screenPoints.Min(point => point.Z);
+
             InitializeCubes(screenPoints);
 
             //закрашиваем фигуру
@@ -280,7 +299,8 @@ namespace GolemApp
                     foreach (var triangle in side)
                         foreach (var point in Rasterizer.GetTrianglePoints([.. triangle.Vertices]))
                             if (_zBuffer.CheckAndSetZValue(point) && IsFill)
-                                bitmap.SetPixel(Floor(point.X), Floor(point.Y), FillColor);
+                                bitmap.SetPixel(Floor(point.X), Floor(point.Y),
+                                    GetFillColor(point.Z, minZ, maxZ));
 
             //отрисовываем линии
             for (int i = 0; i < _transitions.Length; i++)
